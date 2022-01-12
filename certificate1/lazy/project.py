@@ -5,19 +5,27 @@ many more
 """
 
 from RPA.Browser.Selenium import Selenium
+from RPA.HTTP import HTTP
+
 import time
 
 
 class CertificateOne:
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, downloading_path, downloading_file):
         """
         Initiating some Variables that will help soon
         """
         self.browser = Selenium()
+        self.http = HTTP()
 
         self.username = username
         self.password = password
+        self.downloading_path = downloading_path
+        self.downloading_file = downloading_file
+
+    def download_directory(self):
+        self.browser.set_download_directory(directory=self.downloading_path, download_pdf=True)
 
     def open_browser(self):
         """
@@ -55,7 +63,8 @@ class CertificateOne:
                 self.browser.input_text_when_element_is_visible(locator="//input[contains(@id, 'pass')]",
                                                                 text=self.password)
                 self.browser.click_button_when_visible(locator="//button[contains(@class, 'btn-primary')]")
-                self.browser.wait_until_page_contains_element(locator="//input[contains(@name, 'first')]")
+                self.browser.wait_until_page_contains_element(locator="//form[contains(@id, 'sales')]")
+                # self.browser.wait_until_page_contains_element(locator="//input[contains(@name, 'first')]")
                 time.sleep(1)
             except Exception:
                 pass
@@ -63,3 +72,13 @@ class CertificateOne:
                 break
             finally:
                 print("DON't worry")
+
+    def download(self):
+        self.http.download(url=self.downloading_file)
+
+    def form(self):
+        self.browser.input_text_when_element_is_visible(locator="//input[contains(@name, 'first')]", text='')
+        self.browser.input_text_when_element_is_visible(locator="//input[contains(@name, 'last')]", text='')
+        self.browser.select_from_list_by_value(locator="//select[contains(@id, 'sales')]")
+        self.browser.input_text_when_element_is_visible(locator="//input[contains(@name, 'result')]")
+        self.browser.click_button(locator="//button[contains(@class, 'btn-primary')]")

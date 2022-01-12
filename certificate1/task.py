@@ -1,13 +1,24 @@
 """Template robot with Python."""
 
+import os
+
 from lazy.project import CertificateOne
-from lazy.open_secret import username, password
+from lazy.open_secret import username, password, file_url
+
+path = F"{os.getcwd()}/output"
+print(path)
 
 
 def just_run_it():
-    main_course = CertificateOne(username=username, password=password)
-    main_course.open_browser()
-    main_course.login()
+    try:
+        main_course = CertificateOne(username=username, password=password, downloading_path=path,
+                                     downloading_file=file_url)
+        main_course.download_directory()
+        main_course.open_browser()
+        main_course.login()
+        main_course.download()
+    finally:
+        "we call logout and close function at the end"
 
 
 def minimal_task():
