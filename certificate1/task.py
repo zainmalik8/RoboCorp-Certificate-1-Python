@@ -17,6 +17,9 @@ def just_run_it():
         main_course.open_browser()
         main_course.login()
         main_course.download()
+        main_course.sheet()
+        main_course.form()
+        # main_course.press()
     finally:
         "we call logout and close function at the end"
 

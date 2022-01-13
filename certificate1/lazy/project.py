@@ -6,6 +6,7 @@ many more
 
 from RPA.Browser.Selenium import Selenium
 from RPA.HTTP import HTTP
+from RPA.Excel.Files import Files
 
 import time
 
@@ -16,13 +17,15 @@ class CertificateOne:
         """
         Initiating some Variables that will help soon
         """
-        self.browser = Selenium()
+        self.browser = Selenium(auto_close=False)
         self.http = HTTP()
+        self.file = Files()
 
         self.username = username
         self.password = password
         self.downloading_path = downloading_path
         self.downloading_file = downloading_file
+        self.sheet_data = None
 
     def download_directory(self):
         self.browser.set_download_directory(directory=self.downloading_path, download_pdf=True)
@@ -74,11 +77,31 @@ class CertificateOne:
                 print("DON't worry")
 
     def download(self):
-        self.http.download(url=self.downloading_file)
+        self.http.download(url=self.downloading_file, overwrite=True)
+
+    def sheet(self):
+        self.file.open_workbook('SalesData.xlsx')
+        self.sheet_data = self.file.read_worksheet_as_table(name='data', header=True)
+        self.file.close_workbook()
 
     def form(self):
-        self.browser.input_text_when_element_is_visible(locator="//input[contains(@name, 'first')]", text='')
-        self.browser.input_text_when_element_is_visible(locator="//input[contains(@name, 'last')]", text='')
-        self.browser.select_from_list_by_value(locator="//select[contains(@id, 'sales')]")
-        self.browser.input_text_when_element_is_visible(locator="//input[contains(@name, 'result')]")
-        self.browser.click_button(locator="//button[contains(@class, 'btn-primary')]")
+        for data in self.sheet_data:
+            if data['First Name'] is not None:
+                while True:
+                    try:
+                        self.browser.input_text_when_element_is_visible(locator="//input[contains(@name, 'first')]",
+                                                                        text=data['First Name'])
+                        self.browser.input_text_when_element_is_visible(locator="//input[contains(@name, 'last')]",
+                                                                        text=data['Last Name'])
+                        self.browser.select_from_list_by_value("//select[contains(@id, 'sales')]", str(data['Sales Target']))
+                        self.browser.input_text_when_element_is_visible(locator="//input[contains(@name, 'result')]",
+                                                                        text=str(data['Sales']))
+                        self.browser.click_button(locator="//button[contains(@class, 'btn-primary')]")
+
+                        self.browser.wait_until_page_contains_element(locator="//input[contains(@name, 'first')]")
+                    except:
+                        pass
+                    else:
+                        break
+
+            pass
