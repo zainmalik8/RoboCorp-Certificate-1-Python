@@ -6,22 +6,23 @@ from lazy.project import CertificateOne
 from lazy.open_secret import username, password, file_url
 
 path = F"{os.getcwd()}/output"
-print(path)
 
 
 def just_run_it():
+    main_course = CertificateOne(username=username, password=password, downloading_path=path,
+                                 downloading_file=file_url)
     try:
-        main_course = CertificateOne(username=username, password=password, downloading_path=path,
-                                     downloading_file=file_url)
         main_course.download_directory()
         main_course.open_browser()
         main_course.login()
         main_course.download()
         main_course.sheet()
         main_course.form()
-        # main_course.press()
+        main_course.screenshot()
+        main_course.result_into_pdf()
     finally:
-        "we call logout and close function at the end"
+        main_course.logout()
+        main_course.close_browser()
 
 
 def minimal_task():
@@ -29,6 +30,9 @@ def minimal_task():
 
 
 if __name__ == "__main__":
-    just_run_it()
-
-    minimal_task()
+    try:
+        just_run_it()
+    except Exception as e:
+        print(e)
+    else:
+        minimal_task()

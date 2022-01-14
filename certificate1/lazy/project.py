@@ -7,6 +7,7 @@ many more
 from RPA.Browser.Selenium import Selenium
 from RPA.HTTP import HTTP
 from RPA.Excel.Files import Files
+from RPA.PDF import PDF
 
 import time
 
@@ -20,6 +21,7 @@ class CertificateOne:
         self.browser = Selenium(auto_close=False)
         self.http = HTTP()
         self.file = Files()
+        self.pdf = PDF()
 
         self.username = username
         self.password = password
@@ -67,14 +69,13 @@ class CertificateOne:
                                                                 text=self.password)
                 self.browser.click_button_when_visible(locator="//button[contains(@class, 'btn-primary')]")
                 self.browser.wait_until_page_contains_element(locator="//form[contains(@id, 'sales')]")
-                # self.browser.wait_until_page_contains_element(locator="//input[contains(@name, 'first')]")
                 time.sleep(1)
             except Exception:
                 pass
             else:
                 break
             finally:
-                print("DON't worry")
+                "DON't worry"
 
     def download(self):
         self.http.download(url=self.downloading_file, overwrite=True)
@@ -93,15 +94,35 @@ class CertificateOne:
                                                                         text=data['First Name'])
                         self.browser.input_text_when_element_is_visible(locator="//input[contains(@name, 'last')]",
                                                                         text=data['Last Name'])
-                        self.browser.select_from_list_by_value("//select[contains(@id, 'sales')]", str(data['Sales Target']))
+                        self.browser.select_from_list_by_value("//select[contains(@id, 'sales')]",
+                                                               str(data['Sales Target']))
                         self.browser.input_text_when_element_is_visible(locator="//input[contains(@name, 'result')]",
                                                                         text=str(data['Sales']))
                         self.browser.click_button(locator="//button[contains(@class, 'btn-primary')]")
 
                         self.browser.wait_until_page_contains_element(locator="//input[contains(@name, 'first')]")
-                    except:
-                        pass
+                    except Exception as e:
+                        print(e)
                     else:
                         break
 
             pass
+
+    def screenshot(self):
+        self.browser.wait_until_page_contains_element("//div[contains(@class, 'sales-summary')]")
+        self.browser.screenshot(locator="//div[contains(@class, 'sales-summary')]",
+                                filename=F"{self.downloading_path}/sales_summary.png")
+
+    def result_into_pdf(self):
+        self.browser.wait_until_page_contains_element("//div[contains(@id, 'sales-results')]")
+        sales_result_html = self.browser.get_element_attribute(locator="//div[contains(@id, 'sales-results')]",
+                                                               attribute='innerHTML')
+        self.pdf.html_to_pdf(sales_result_html, f"{self.downloading_path}/sales_results.pdf")
+
+    def logout(self):
+        time.sleep(1)
+        self.browser.click_button(locator="//*[contains(text(), 'Log out')]")
+
+    def close_browser(self):
+        time.sleep(1)
+        self.browser.close_browser()
