@@ -29,9 +29,6 @@ class CertificateOne:
         self.downloading_file = downloading_file
         self.sheet_data = None
 
-    def download_directory(self):
-        self.browser.set_download_directory(directory=self.downloading_path, download_pdf=True)
-
     def open_browser(self):
         """
         open browser with specific Uniform Resource Locator (URL)
@@ -78,10 +75,11 @@ class CertificateOne:
                 "DON't worry"
 
     def download(self):
-        self.http.download(url=self.downloading_file, overwrite=True)
+        self.http.download(url=self.downloading_file, overwrite=True,
+                           target_file=f"{self.downloading_path}/SalesData.xlsx")
 
     def sheet(self):
-        self.file.open_workbook('SalesData.xlsx')
+        self.file.open_workbook(f'{self.downloading_path}/SalesData.xlsx')
         self.sheet_data = self.file.read_worksheet_as_table(name='data', header=True)
         self.file.close_workbook()
 

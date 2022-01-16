@@ -12,7 +12,6 @@ def just_run_it():
     main_course = CertificateOne(username=username, password=password, downloading_path=path,
                                  downloading_file=file_url)
     try:
-        main_course.download_directory()
         main_course.open_browser()
         main_course.login()
         main_course.download()
