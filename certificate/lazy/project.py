@@ -4,29 +4,25 @@ many more
 
 """
 
-from RPA.Browser.Selenium import Selenium
-from RPA.HTTP import HTTP
-from RPA.Excel.Files import Files
-from RPA.PDF import PDF
-
 import time
+
+from RPA.Browser.Selenium import Selenium
+from RPA.Excel.Files import Files
+from RPA.HTTP import HTTP
+from RPA.PDF import PDF
 
 
 class CertificateOne:
 
-    def __init__(self, username, password, downloading_path, downloading_file):
+    def __init__(self, username: str, password: str, output_path: str, sales_file_url: str):
         """
         Initiating some Variables that will help soon
         """
         self.browser = Selenium(auto_close=False)
-        self.http = HTTP()
-        self.file = Files()
-        self.pdf = PDF()
+        self.http, self.file, self.pdf = HTTP(), Files(), PDF()
 
-        self.username = username
-        self.password = password
-        self.downloading_path = downloading_path
-        self.downloading_file = downloading_file
+        self.username, self.password = username, password
+        self.downloading_path, self.sales_file_url = output_path, sales_file_url
         self.sheet_data = None
 
     def open_browser(self):
@@ -75,7 +71,7 @@ class CertificateOne:
                 "DON't worry"
 
     def download(self):
-        self.http.download(url=self.downloading_file, overwrite=True,
+        self.http.download(url=self.sales_file_url, overwrite=True,
                            target_file=f"{self.downloading_path}/SalesData.xlsx")
 
     def sheet(self):
