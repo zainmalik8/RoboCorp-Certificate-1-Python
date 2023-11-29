@@ -5,7 +5,7 @@ from dataclasses import dataclass, asdict
 
 from dotenv import load_dotenv
 
-from lazy.project import CertificateOne
+from lazy.project import Certificate
 
 load_dotenv()
 
@@ -19,18 +19,20 @@ class BotData:
 
 
 def task_main():
-    main_course = CertificateOne(**asdict(BotData()))
+    certificate = Certificate(**asdict(BotData()))
     try:
-        main_course.open_browser()
-        main_course.login()
-        main_course.download()
-        main_course.sheet()
-        main_course.form()
-        main_course.screenshot()
-        main_course.result_into_pdf()
-    finally:
-        main_course.logout()
-        main_course.close_browser()
+        certificate.open_browser()
+        certificate.login()
+        certificate.download()
+        certificate.sheet()
+        certificate.form()
+        certificate.screenshot()
+        certificate.result_into_pdf()
+    except Exception as error:
+        print(error)
+    else:
+        certificate.logout()
+        certificate.close_browser()
 
 
 if __name__ == "__main__":
