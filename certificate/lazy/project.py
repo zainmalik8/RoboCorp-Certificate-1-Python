@@ -12,8 +12,10 @@ from RPA.HTTP import HTTP
 from RPA.PDF import PDF
 from RPA.Tables import Table
 
+from .mappers import XpathMapper
 
-class Certificate:
+
+class Certificate(XpathMapper):
 
     def __init__(self, username: str, password: str, output_path: str, sales_file_url: str):
         """
@@ -35,15 +37,15 @@ class Certificate:
     def login(self):
         print("Loging in....")
 
-        self.browser.wait_until_page_contains_element("//input[contains(@id, 'name')]",
+        self.browser.wait_until_page_contains_element(self.username_field,
                                                       timeout=timedelta(seconds=20))
-        self.browser.input_text_when_element_is_visible(locator="//input[contains(@id, 'name')]",
+        self.browser.input_text_when_element_is_visible(locator=self.username_field,
                                                         text=self.username)
-        self.browser.input_text_when_element_is_visible(locator="//input[contains(@id, 'pass')]",
+        self.browser.input_text_when_element_is_visible(locator=self.password_field,
                                                         text=self.password)
-        self.browser.click_button_when_visible(locator="//button[contains(@class, 'btn-primary')]")
+        self.browser.click_button_when_visible(locator=self.generic_button)
 
-        self.browser.wait_until_page_contains_element(locator="//form[contains(@id, 'sales')]")
+        self.browser.wait_until_page_contains_element(locator=self.sales_form)
         print("Logged-In successfully.")
 
     def download(self):
@@ -62,19 +64,12 @@ class Certificate:
             print("making data entries.")
             for data in self.sheet_data:
                 if data['First Name']:
-                    self.browser.wait_until_page_contains_element(locator="//input[contains(@name, 'first')]",
-                                                                  timeout=timedelta(seconds=15))
-
-                    self.browser.input_text_when_element_is_visible(locator="//input[contains(@name, 'first')]",
-                                                                    text=data['First Name'])
-                    self.browser.input_text_when_element_is_visible(locator="//input[contains(@name, 'last')]",
-                                                                    text=data['Last Name'])
-                    self.browser.select_from_list_by_value("//select[contains(@id, 'sales')]",
-                                                           str(data['Sales Target']))
-                    self.browser.input_text_when_element_is_visible(locator="//input[contains(@name, 'result')]",
-                                                                    text=str(data['Sales']))
-                    self.browser.click_button(locator="//button[contains(@class, 'btn-primary')]")
-
+                    self.browser.wait_until_page_contains_element(self.form_first_name, timeout=timedelta(seconds=15))
+                    self.browser.input_text_when_element_is_visible(self.form_first_name, text=data['First Name'])
+                    self.browser.input_text_when_element_is_visible(self.form_last_name, text=data['Last Name'])
+                    self.browser.select_from_list_by_value(self.form_sales_target, str(data['Sales Target']))
+                    self.browser.input_text_when_element_is_visible(self.form_sales_result, text=str(data['Sales']))
+                    self.browser.click_button(locator=self.generic_button)
             else:
                 print("entries entered successfully.")
         except Exception as error:
@@ -82,20 +77,18 @@ class Certificate:
 
     def screenshot(self):
         print("taking screenshot...")
-        self.browser.wait_until_page_contains_element("//div[contains(@class, 'sales-summary')]")
-        self.browser.screenshot(locator="//div[contains(@class, 'sales-summary')]",
-                                filename=F"{self.downloading_path}/sales_summary.png")
+        self.browser.wait_until_page_contains_element(self.sales_summary)
+        self.browser.screenshot(self.sales_summary, filename=F"{self.downloading_path}/sales_summary.png")
 
     def result_into_pdf(self):
         print("converting to pdf")
-        self.browser.wait_until_page_contains_element("//div[contains(@id, 'sales-results')]")
-        sales_result_html = self.browser.get_element_attribute(locator="//div[contains(@id, 'sales-results')]",
-                                                               attribute='innerHTML')
+        self.browser.wait_until_page_contains_element(self.sales_result)
+        sales_result_html = self.browser.get_element_attribute(self.sales_result, attribute='innerHTML')
         self.pdf.html_to_pdf(sales_result_html, f"{self.downloading_path}/sales_results.pdf")
 
     def logout(self):
         print("logging out")
-        self.browser.click_button_when_visible(locator="//*[contains(text(), 'Log out')]")
+        self.browser.click_button_when_visible(locator=self.logout_locator)
 
     def close_browser(self):
         print("closing the browser.")
