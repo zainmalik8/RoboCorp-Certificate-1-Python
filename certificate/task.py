@@ -1,21 +1,9 @@
 """Entry point of the web bot."""
 
-import os
-from dataclasses import dataclass, asdict
+from dataclasses import asdict
 
-from dotenv import load_dotenv
-
+from config import BotData
 from lazy.project import Certificate
-
-load_dotenv()
-
-
-@dataclass
-class BotData:
-    username: str = os.getenv("username")
-    password: str = os.getenv("password")
-    sales_file_url: str = os.getenv("file_url")
-    output_path: str = f"{os.getcwd()}/output"
 
 
 def task_main():
@@ -25,8 +13,8 @@ def task_main():
         certificate.login()
         certificate.download()
         certificate.sheet()
-        certificate.form()
-        certificate.screenshot()
+        certificate.form_entries()
+        certificate.take_summary_screenshot()
         certificate.result_into_pdf()
     except Exception as error:
         print(error)
