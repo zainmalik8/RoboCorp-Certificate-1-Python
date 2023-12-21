@@ -17,3 +17,5 @@ class XpathMapper:
     sales_result = "//div[contains(@id, 'sales-results')]"
 
     logout_locator = "//*[contains(text(), 'Log out')]"
+
+    active_sale_locator = "//span[contains(text(), 'Active sales')]/following-sibling::span"

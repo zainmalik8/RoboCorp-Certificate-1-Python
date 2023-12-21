@@ -27,12 +27,13 @@ class Certificate(XpathMapper):
 
         self.username, self.password = username, password
         self.downloading_path, self.sales_file_url = output_path, sales_file_url
+        self.sales_entries: int = 0
 
     def open_browser(self):
         """
         open browser with specific Uniform Resource Locator (URL)
         """
-        self.browser.open_available_browser(url="https://robotsparebinindustries.com/")
+        self.browser.open_available_browser(url="https://robotsparebinindustries.com/", maximized=True)
 
     def login(self):
         print("Loging in....")
@@ -45,8 +46,10 @@ class Certificate(XpathMapper):
                                                         text=self.password)
         self.browser.click_button_when_visible(locator=self.generic_button)
 
-        self.browser.wait_until_page_contains_element(locator=self.sales_form)
-        print("Logged-In successfully.")
+        self.browser.wait_until_page_contains_element(locator=self.sales_form, timeout=timedelta(seconds=12))
+        if self.browser.does_page_contain_element(self.sales_form):
+            print("Logged-In successfully.")
+            return True
 
     def download(self):
         print("downloading file")
@@ -59,7 +62,7 @@ class Certificate(XpathMapper):
         self.sheet_data = self.file.read_worksheet_as_table(name='data', header=True)
         self.file.close_workbook()
 
-    def form(self):
+    def form_entries(self):
         try:
             print("making data entries.")
             for data in self.sheet_data:
@@ -70,13 +73,14 @@ class Certificate(XpathMapper):
                     self.browser.select_from_list_by_value(self.form_sales_target, str(data['Sales Target']))
                     self.browser.input_text_when_element_is_visible(self.form_sales_result, text=str(data['Sales']))
                     self.browser.click_button(locator=self.generic_button)
+                    self.sales_entries += 1
             else:
                 print("entries entered successfully.")
         except Exception as error:
             raise error
 
-    def screenshot(self):
-        print("taking screenshot...")
+    def take_summary_screenshot(self):
+        print("taking summary's screenshot...")
         self.browser.wait_until_page_contains_element(self.sales_summary)
         self.browser.screenshot(self.sales_summary, filename=F"{self.downloading_path}/sales_summary.png")
 
