@@ -12,6 +12,7 @@ from RPA.HTTP import HTTP
 from RPA.PDF import PDF
 from RPA.Tables import Table
 
+from logger import logger
 from .mappers import XpathMapper
 
 
@@ -36,7 +37,7 @@ class Process(XpathMapper):
         self.browser.open_available_browser(url="https://robotsparebinindustries.com/", maximized=True)
 
     def login(self):
-        print("Loging in....")
+        logger.info("Loging in....")
 
         self.browser.wait_until_page_contains_element(self.username_field,
                                                       timeout=timedelta(seconds=20))
@@ -48,23 +49,23 @@ class Process(XpathMapper):
 
         self.browser.wait_until_page_contains_element(locator=self.sales_form, timeout=timedelta(seconds=12))
         if self.browser.does_page_contain_element(self.sales_form):
-            print("Logged-In successfully.")
+            logger.info("Logged-In successfully.")
             return True
 
     def download(self):
-        print("downloading file")
+        logger.info("downloading file")
         self.http.download(url=self.sales_file_url, overwrite=True,
                            target_file=f"{self.downloading_path}/SalesData.xlsx")
 
     def sheet(self):
-        print("reading sheet.")
+        logger.info("reading sheet.")
         self.file.open_workbook(f'{self.downloading_path}/SalesData.xlsx')
         self.sheet_data = self.file.read_worksheet_as_table(name='data', header=True)
         self.file.close_workbook()
 
     def form_entries(self):
         try:
-            print("making data entries.")
+            logger.info("making data entries.")
             for data in self.sheet_data:
                 if data['First Name']:
                     self.browser.wait_until_page_contains_element(self.form_first_name, timeout=timedelta(seconds=15))
@@ -75,31 +76,31 @@ class Process(XpathMapper):
                     self.browser.click_button(locator=self.generic_button)
                     self.sales_entries += 1
             else:
-                print("entries entered successfully.")
+                logger.info(f"{self.sales_entries} entries entered successfully.")
         except Exception as error:
             raise error
 
     def take_summary_screenshot(self):
-        print("taking summary's screenshot...")
+        logger.info("taking summary's screenshot...")
         self.browser.wait_until_page_contains_element(self.sales_summary)
         self.browser.screenshot(self.sales_summary, filename=F"{self.downloading_path}/sales_summary.png")
 
     def result_into_pdf(self):
-        print("converting to pdf")
+        logger.info("converting to pdf")
         self.browser.wait_until_page_contains_element(self.sales_result)
         sales_result_html = self.browser.get_element_attribute(self.sales_result, attribute='innerHTML')
         self.pdf.html_to_pdf(sales_result_html, f"{self.downloading_path}/sales_results.pdf")
 
     def logout(self):
-        print("logging out")
+        logger.warning("logging out")
         self.browser.click_button_when_visible(locator=self.logout_locator)
 
     def close_browser(self):
-        print("closing the browser.")
+        logger.warning("closing the browser.")
         self.browser.close_browser()
 
     def start(self):
-        print("Initiating Web bot process....")
+        logger.info("Initiating Web bot process....")
         self.open_browser()
         self.login()
         self.download()
@@ -109,5 +110,6 @@ class Process(XpathMapper):
         self.result_into_pdf()
 
     def finish(self):
+        logger.warning("Releasing the resources....")
         self.logout()
         self.close_browser()

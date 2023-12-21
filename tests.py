@@ -3,7 +3,7 @@ from pathlib import Path
 from dataclasses import asdict
 
 from config import BotData
-from lazy.project import Process
+from workflow.project import Process
 
 
 class CertificateTest(unittest.TestCase):
