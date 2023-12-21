@@ -3,24 +3,17 @@
 from dataclasses import asdict
 
 from config import BotData
-from lazy.project import Certificate
+from lazy.project import Process
 
 
 def task_main():
-    certificate = Certificate(**asdict(BotData()))
+    process = Process(**asdict(BotData()))
     try:
-        certificate.open_browser()
-        certificate.login()
-        certificate.download()
-        certificate.sheet()
-        certificate.form_entries()
-        certificate.take_summary_screenshot()
-        certificate.result_into_pdf()
+        process.start()
     except Exception as error:
         print(error)
     else:
-        certificate.logout()
-        certificate.close_browser()
+        process.finish()
 
 
 if __name__ == "__main__":
@@ -29,4 +22,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(e)
     else:
-        print("Web Bot run successfully.")
+        print("Web Bot executed successfully.")

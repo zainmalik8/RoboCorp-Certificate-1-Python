@@ -15,7 +15,7 @@ from RPA.Tables import Table
 from .mappers import XpathMapper
 
 
-class Certificate(XpathMapper):
+class Process(XpathMapper):
 
     def __init__(self, username: str, password: str, output_path: str, sales_file_url: str):
         """
@@ -97,3 +97,17 @@ class Certificate(XpathMapper):
     def close_browser(self):
         print("closing the browser.")
         self.browser.close_browser()
+
+    def start(self):
+        print("Initiating Web bot process....")
+        self.open_browser()
+        self.login()
+        self.download()
+        self.sheet()
+        self.form_entries()
+        self.take_summary_screenshot()
+        self.result_into_pdf()
+
+    def finish(self):
+        self.logout()
+        self.close_browser()
